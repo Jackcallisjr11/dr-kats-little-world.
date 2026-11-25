@@ -224,6 +224,17 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
 @keyframes rainFall{from{background-position:0 0,9px 12px}to{background-position:-12px 38px,-5px 60px}}
 @media(prefers-reduced-motion:reduce){#weatherFX{animation:none}}
 
+
+/* Prototype 22: soft fireflies for a peaceful evening island. */
+#fireflyFX{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.5s ease;
+ background-image:radial-gradient(circle,#fff6b8 0 1.8px,transparent 3px),radial-gradient(circle,#fff0a0 0 1.5px,transparent 3px),radial-gradient(circle,#e8ffc0 0 1.7px,transparent 3px),radial-gradient(circle,#fff4bd 0 1.4px,transparent 3px),radial-gradient(circle,#f7ffcf 0 1.6px,transparent 3px);
+ background-size:173px 191px,227px 239px,281px 211px,197px 263px,311px 173px;
+ background-position:15px 22px,80px 110px,130px 40px,40px 170px,190px 80px;
+ animation:fireflyDrift 8s ease-in-out infinite alternate}
+#game.fireflies #fireflyFX{opacity:.8}
+@keyframes fireflyDrift{0%{transform:translate3d(0,0,0);filter:brightness(.85)}50%{filter:brightness(1.35)}100%{transform:translate3d(7px,-11px,0);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){#fireflyFX{animation:none}}
+
 </style>
 
 <meta name="theme-color" content="#a8d69a">
@@ -251,10 +262,10 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
   <div id="player"><div class="head"><div class="hair"></div></div><div class="body"></div><div class="legs"></div><div class="shadow"></div></div>
   <div id="jack"><span class="tag">JACK</span><div class="jhead"><i></i></div><div class="jbody"></div><div class="jlegs"></div><div class="jshadow"></div></div>
  </div>
- <div id="weatherFX" aria-hidden="true"></div>
+ <div id="weatherFX" aria-hidden="true"></div><div id="fireflyFX" aria-hidden="true"></div>
  <div id="hud">
   <div id="top"><div class="pill">🌿 Dr. Kat's Little World</div><div class="pill" id="coins">💌 10</div></div>
-  <div id="mini">Prototype 21 · Gentle island weather</div>
+  <div id="mini">Prototype 22 · Evening fireflies</div>
   <div id="menuBtns"><button id="profileBtn">👤 Profile</button><button id="bagBtn">🎒 Bag</button><button id="saveBtn">💾 Save</button><button id="studyBtn">📚 Study</button><button id="shopBtn">🛍️ Shop</button><button id="settingsBtn">⚙️</button></div><div id="moodbar" class="pill" style="position:absolute;top:112px;left:14px;z-index:3;font-size:12px">😊 Happy · ☀️ Morning</div><div id="audioBadge">🎵 Island sounds off</div><div id="weatherBadge" class="pill" style="position:absolute;top:150px;left:14px;z-index:3;font-size:11px">☀️ Clear skies</div>
   <div id="hint">Move with the joystick or WASD. Walk near an object and tap INTERACT.</div>
   <div id="controls"><div id="stick"></div></div><button id="action">INTERACT</button>
@@ -380,8 +391,10 @@ let profileName=localStorage.getItem('katWorldName')||'Dr. Kat';
 let profilePhoto=localStorage.getItem('katWorldAvatar')||'';
 let soundEnabled=localStorage.getItem('katWorldSound')!=='off';
 let rainEnabled=localStorage.getItem('katWorldRain')==='on';
+let firefliesEnabled=localStorage.getItem('katWorldFireflies')==='on';
 function applyWeather(){
  game.classList.toggle('raining',rainEnabled);
+ game.classList.toggle('fireflies',firefliesEnabled);
  const badge=document.getElementById('weatherBadge');
  if(badge)badge.textContent=rainEnabled?'🌧️ Soft rain':'☀️ Clear skies';
 }
@@ -407,6 +420,7 @@ document.getElementById('bagBtn').addEventListener('click',()=>{
 document.getElementById('settingsBtn').addEventListener('click',()=>{
  showExtra('⚙️ Settings',`<p><b>Sound preference</b></p><button id="soundToggle">${soundEnabled?'🔊 Sound on':'🔇 Sound off'}</button>
  <p><b>Island weather</b></p><button id="weatherToggle">${rainEnabled?'🌧️ Soft rain on':'☀️ Clear skies'}</button><p style="font-size:12px;color:#60765f">A gentle rain effect. Switch it off whenever you like.</p>
+ <p><b>Evening fireflies</b></p><button id="fireflyToggle">${firefliesEnabled?'✨ Fireflies on':'🌙 Fireflies off'}</button><p style="font-size:12px;color:#60765f">Tiny glowing lights drift around the island. No tasks, just atmosphere.</p>
  <p><b>Joystick size</b> <span id="joySizeLabel">100%</span></p><input id="joySize" type="range" min="80" max="125" value="${localStorage.getItem('katJoySize')||100}" style="width:100%">
  <p><b>Interact button size</b> <span id="actionSizeLabel">100%</span></p><input id="actionSize" type="range" min="80" max="125" value="${localStorage.getItem('katActionSize')||100}" style="width:100%">
  <p><b>Controls</b><br>Mobile: left joystick to move, INTERACT on the right.<br>Computer: WASD or arrow keys.</p>
@@ -520,6 +534,7 @@ extraContent.addEventListener('click',e=>{
  if(e.target.id==='runChecks'){runIntegrationChecks();}
  if(e.target.id==='soundToggle'){soundEnabled=!soundEnabled;localStorage.setItem('katWorldSound',soundEnabled?'on':'off');e.target.textContent=soundEnabled?'🔊 Sound on':'🔇 Sound off';syncAmbient();}
  if(e.target.id==='weatherToggle'){rainEnabled=!rainEnabled;localStorage.setItem('katWorldRain',rainEnabled?'on':'off');applyWeather();e.target.textContent=rainEnabled?'🌧️ Soft rain on':'☀️ Clear skies';}
+ if(e.target.id==='fireflyToggle'){firefliesEnabled=!firefliesEnabled;localStorage.setItem('katWorldFireflies',firefliesEnabled?'on':'off');applyWeather();e.target.textContent=firefliesEnabled?'✨ Fireflies on':'🌙 Fireflies off';}
  const buyId=e.target.dataset.shopbuy;
  if(buyId){
   const item=shopCatalog.find(v=>v.id===buyId),owned=JSON.parse(localStorage.getItem('katWorldItems')||'[]');
