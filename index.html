@@ -218,7 +218,7 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
  </div>
  <div id="hud">
   <div id="top"><div class="pill">🌿 Dr. Kat's Little World</div><div class="pill" id="coins">💌 10</div></div>
-  <div id="mini">Prototype 18 · Save transfer</div>
+  <div id="mini">Prototype 19 · Smooth movement</div>
   <div id="menuBtns"><button id="profileBtn">👤 Profile</button><button id="bagBtn">🎒 Bag</button><button id="saveBtn">💾 Save</button><button id="studyBtn">📚 Study</button><button id="shopBtn">🛍️ Shop</button><button id="settingsBtn">⚙️</button></div><div id="moodbar" class="pill" style="position:absolute;top:112px;left:14px;z-index:3;font-size:12px">😊 Happy · ☀️ Morning</div><div id="audioBadge">🎵 Island sounds off</div>
   <div id="hint">Move with the joystick or WASD. Walk near an object and tap INTERACT.</div>
   <div id="controls"><div id="stick"></div></div><button id="action">INTERACT</button>
@@ -308,7 +308,13 @@ pad.addEventListener('pointermove',e=>{if(joy.active)moveStick(e);});
 function moveStick(e){const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let vx=e.clientX-cx,vy=e.clientY-cy,len=Math.hypot(vx,vy),m=32;if(len>m){vx=vx/len*m;vy=vy/len*m;}dx=vx/m;dy=vy/m;stick.style.transform=`translate(${vx}px,${vy}px)`;}
 function release(){joy.active=false;dx=dy=0;stick.style.transform='translate(0,0)';}
 pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);
-function frame(){let ax=dx,ay=dy;if(keys.w||keys.arrowup)ay=-1;if(keys.s||keys.arrowdown)ay=1;if(keys.a||keys.arrowleft)ax=-1;if(keys.d||keys.arrowright)ax=1;let l=Math.hypot(ax,ay);if(l){x+=ax/l*2.35;y+=ay/l*2.35;}x=Math.max(25,Math.min(1175,x));y=Math.max(25,Math.min(850,y));player.style.left=(x-22)+'px';player.style.top=(y-55)+'px';
+let moveVX=0,moveVY=0;
+function frame(){let ax=dx,ay=dy;if(keys.w||keys.arrowup)ay=-1;if(keys.s||keys.arrowdown)ay=1;if(keys.a||keys.arrowleft)ax=-1;if(keys.d||keys.arrowright)ax=1;let l=Math.hypot(ax,ay);if(l>1){ax/=l;ay/=l;}
+// Gentle acceleration and deceleration: quicker walking without jerky joystick starts/stops.
+const targetVX=ax*3.15,targetVY=ay*3.15;
+moveVX+=(targetVX-moveVX)*0.22;moveVY+=(targetVY-moveVY)*0.22;
+if(Math.abs(moveVX)<0.025)moveVX=0;if(Math.abs(moveVY)<0.025)moveVY=0;
+x+=moveVX;y+=moveVY;x=Math.max(25,Math.min(1175,x));y=Math.max(25,Math.min(850,y));player.style.left=(x-22)+'px';player.style.top=(y-55)+'px';
 if(jackFollowing){const targetX=x+48,targetY=y+8; jx+=(targetX-jx)*0.045; jy+=(targetY-jy)*0.045;}
 jack.style.left=(jx-23)+'px';jack.style.top=(jy-58)+'px';
 const scale=Math.min(Math.max(innerWidth/760,0.55),1);const tx=innerWidth/2-x*scale,ty=innerHeight/2-y*scale;world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
@@ -622,7 +628,7 @@ frame();
 </script>
 </div>
 <script>
-/* Prototype 18: installable app shell + offline cache for the published game. */
+/* Prototype 19: smoother movement + installable app shell + offline cache. */
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

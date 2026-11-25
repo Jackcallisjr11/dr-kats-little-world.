@@ -1,4 +1,4 @@
-DR. KAT'S LITTLE WORLD — PROTOTYPE 18
+DR. KAT'S LITTLE WORLD — PROTOTYPE 19
 ======================================
 
 WHAT'S NEW
@@ -30,3 +30,8 @@ PUBLISH WITH GITHUB PAGES
 
 The URL usually looks like:
 https://YOUR-USERNAME.github.io/REPOSITORY-NAME/
+
+PROTOTYPE 19 CHANGE
+- Character movement increased from 2.35 to 3.15 world units/frame (about 34% faster at the same frame rate).
+- Added gentle acceleration/deceleration for smoother joystick and keyboard response.
+- Existing gameplay and save keys retained.
