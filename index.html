@@ -189,6 +189,27 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
 :focus-visible{outline:3px solid #6b9c70;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 
+
+/* Prototype 20: gentle hand-drawn walk cycles for Kat and Jack.
+   Animation is visual-only; movement coordinates, collision/interactions and save data stay intact. */
+#player .body,#jack .jbody{transform-origin:50% 85%}
+#player .legs:before,#jack .jlegs:before{transform-origin:50% 0}
+#player .legs:after,#jack .jlegs:after{transform-origin:50% 0}
+#player.walking .legs:before,#jack.walking .jlegs:before{animation:stepLeft .30s ease-in-out infinite alternate}
+#player.walking .legs:after,#jack.walking .jlegs:after{animation:stepRight .30s ease-in-out infinite alternate}
+#player.walking .body,#jack.walking .jbody{animation:walkBob .30s ease-in-out infinite alternate}
+#player.walking .head,#jack.walking .jhead{animation:headBob .30s ease-in-out infinite alternate}
+#player.walking .hair:before{animation-duration:.55s}
+#player.facing-left,#jack.facing-left{transform:scaleX(-1)}
+@keyframes stepLeft{from{transform:rotate(-20deg) translateY(-1px)}to{transform:rotate(22deg) translateY(1px)}}
+@keyframes stepRight{from{transform:rotate(22deg) translateY(1px)}to{transform:rotate(-20deg) translateY(-1px)}}
+@keyframes walkBob{from{transform:translateY(0)}to{transform:translateY(-2px)}}
+@keyframes headBob{from{transform:translateY(0)}to{transform:translateY(-1px)}}
+@media(prefers-reduced-motion:reduce){
+ #player.walking .legs:before,#player.walking .legs:after,#jack.walking .jlegs:before,#jack.walking .jlegs:after,
+ #player.walking .body,#jack.walking .jbody,#player.walking .head,#jack.walking .jhead{animation:none}
+}
+
 </style>
 
 <meta name="theme-color" content="#a8d69a">
@@ -315,8 +336,14 @@ const targetVX=ax*3.15,targetVY=ay*3.15;
 moveVX+=(targetVX-moveVX)*0.22;moveVY+=(targetVY-moveVY)*0.22;
 if(Math.abs(moveVX)<0.025)moveVX=0;if(Math.abs(moveVY)<0.025)moveVY=0;
 x+=moveVX;y+=moveVY;x=Math.max(25,Math.min(1175,x));y=Math.max(25,Math.min(850,y));player.style.left=(x-22)+'px';player.style.top=(y-55)+'px';
+const katWalking=Math.hypot(moveVX,moveVY)>.18;
+player.classList.toggle('walking',katWalking);
+if(Math.abs(moveVX)>.08)player.classList.toggle('facing-left',moveVX<0);
 if(jackFollowing){const targetX=x+48,targetY=y+8; jx+=(targetX-jx)*0.045; jy+=(targetY-jy)*0.045;}
 jack.style.left=(jx-23)+'px';jack.style.top=(jy-58)+'px';
+const jackWalking=jackFollowing&&Math.hypot((x+48)-jx,(y+8)-jy)>.7;
+jack.classList.toggle('walking',jackWalking);
+if(jackFollowing&&Math.abs(moveVX)>.08)jack.classList.toggle('facing-left',moveVX<0);
 const scale=Math.min(Math.max(innerWidth/760,0.55),1);const tx=innerWidth/2-x*scale,ty=innerHeight/2-y*scale;world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
 if(followButterfly){const b=document.getElementById('butterfly');const bx=parseFloat(b.style.left),by=parseFloat(b.style.top);if(Math.hypot(x-bx,y-by)<75){b.style.left=(bx+((Math.random()-.5)*100))+'px';b.style.top=(by+((Math.random()-.5)*90))+'px';if(Math.random()>.72){followButterfly=false;open('A little discovery','The butterfly rests near a hidden envelope. Inside: “Be still, and know that I am God.” — Psalm 46:10 💌');coins+=3;document.getElementById('coins').textContent='💌 '+coins;saveGame();}}}
 requestAnimationFrame(frame);}

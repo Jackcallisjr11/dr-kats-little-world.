@@ -1,37 +1,25 @@
-DR. KAT'S LITTLE WORLD — PROTOTYPE 19
+DR. KAT'S LITTLE WORLD — PROTOTYPE 20
 ======================================
 
 WHAT'S NEW
-- Prepared as a public-launch package for GitHub Pages.
-- Added installable web-app metadata (manifest + icon).
-- Added a service worker to cache the game shell for repeat/offline opening.
-- Preserved the complete Prototype 17 game HTML and its existing features,
-  including manual JSON backup import/export.
+- Added gentle 2D walk-cycle animation for Dr. Kat and Jack.
+- Legs alternate, body and head bob subtly while walking.
+- Character faces the horizontal direction of travel.
+- Jack animates while following Kat.
+- Reduced-motion accessibility preference is respected.
 
-IMPORTANT
-- This package is NOT published yet. No public URL exists until you upload it
-  to a public GitHub repository and enable GitHub Pages.
-- Save data remains in the browser on each device. There is no automatic
-  cloud sync between your phone and Dr. Kat's phone.
-- The current character artwork is still the prototype's CSS-drawn placeholder
-  style; final custom character sprite artwork has not been integrated.
-- Service-worker/offline behavior requires the game to be hosted over HTTPS
-  (GitHub Pages provides HTTPS).
+PRESERVED
+- Prototype 19 game content, controls, movement physics, interactions,
+  menus, study flow, rewards, local saves, and backup import/export.
+- Existing character DOM and world layout.
 
-PUBLISH WITH GITHUB PAGES
-1. Create a NEW public GitHub repository.
-2. Upload every file in this folder (index.html, manifest.webmanifest,
-   icon.svg, sw.js, README.txt) to the repository root.
-3. Open repository Settings -> Pages.
-4. Under Build and deployment, choose Deploy from a branch.
-5. Select branch "main" and folder "/ (root)", then Save.
-6. Wait for GitHub Pages to finish deploying. Copy the published URL and
-   open it on your phone to test before sending it to Dr. Kat.
+PUBLISH UPDATE
+1. Extract this ZIP.
+2. Upload and replace the five files in the root of the existing public
+   GitHub repository: index.html, manifest.webmanifest, icon.svg, sw.js,
+   README.txt.
+3. Commit changes and wait for GitHub Pages deployment to succeed.
+4. Reopen the live site. If an old cached build appears, refresh or clear
+   the site's browser cache.
 
-The URL usually looks like:
-https://YOUR-USERNAME.github.io/REPOSITORY-NAME/
-
-PROTOTYPE 19 CHANGE
-- Character movement increased from 2.35 to 3.15 world units/frame (about 34% faster at the same frame rate).
-- Added gentle acceleration/deceleration for smoother joystick and keyboard response.
-- Existing gameplay and save keys retained.
+This package is prepared locally and is not published until committed.
