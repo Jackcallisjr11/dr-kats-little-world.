@@ -236,7 +236,7 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
 @media(prefers-reduced-motion:reduce){#fireflyFX{animation:none}}
 
 
-/* Prototype 23: selectable peaceful sky moods. Decorative layer never blocks play. */
+/* Final Release: selectable peaceful sky moods. Decorative layer never blocks play. */
 #skyFX{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity 1.6s ease,background 1.6s ease}
 #game.sky-dawn #skyFX{opacity:1;background:linear-gradient(180deg,#f7c8d455 0%,#f9d9a522 48%,transparent 100%)}
 #game.sky-sunset #skyFX{opacity:1;background:linear-gradient(180deg,#f18a6b66 0%,#f5bd7950 42%,#d8897b20 75%,transparent 100%)}
@@ -275,7 +275,7 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
  <div id="weatherFX" aria-hidden="true"></div><div id="fireflyFX" aria-hidden="true"></div><div id="skyFX" aria-hidden="true"></div>
  <div id="hud">
   <div id="top"><div class="pill">🌿 Dr. Kat's Little World</div><div class="pill" id="coins">💌 10</div></div>
-  <div id="mini">Prototype 23 · Sky moods</div>
+  <div id="mini">Dr. Kat's Little World · Final Release</div>
   <div id="menuBtns"><button id="profileBtn">👤 Profile</button><button id="bagBtn">🎒 Bag</button><button id="saveBtn">💾 Save</button><button id="studyBtn">📚 Study</button><button id="shopBtn">🛍️ Shop</button><button id="settingsBtn">⚙️</button></div><div id="moodbar" class="pill" style="position:absolute;top:112px;left:14px;z-index:3;font-size:12px">😊 Happy · ☀️ Morning</div><div id="audioBadge">🎵 Island sounds off</div><div id="weatherBadge" class="pill" style="position:absolute;top:150px;left:14px;z-index:3;font-size:11px">☀️ Clear skies</div>
   <div id="hint">Move with the joystick or WASD. Walk near an object and tap INTERACT.</div>
   <div id="controls"><div id="stick"></div></div><button id="action">INTERACT</button>
