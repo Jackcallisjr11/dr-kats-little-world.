@@ -247,9 +247,14 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
 
 /* Mobile layout repair + full-screen illustrated island backdrop */
 #game{isolation:isolate;background:#9dce91}
-#game::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
- background-image:url("./island-art.png");background-repeat:no-repeat;background-position:center center;background-size:cover}
-#world{z-index:1;background:transparent!important}
+#game::before{content:none!important}
+#world{z-index:1;background-image:url("./island-art.png")!important;background-repeat:no-repeat!important;background-position:center center!important;background-size:cover!important;overflow:hidden}
+/* The illustrated island is the actual walkable map, not a screen-fixed poster. */
+#world .tree,#world .flower,#world .path,#world #riverbank,#world .object{display:none!important}
+#player,#jack{z-index:8;will-change:left,top,transform}
+#player{width:52px;height:72px}
+#jack{width:52px;height:74px}
+#player .shadow,#jack .jshadow{pointer-events:none}
 #hud{z-index:12}
 #weatherFX,#fireflyFX,#skyFX{z-index:3}
 #modal{z-index:40}
@@ -322,6 +327,17 @@ const world=document.getElementById('world'), player=document.getElementById('pl
 const toast=document.getElementById('toast'), modal=document.getElementById('modal'), jack=document.getElementById('jack'), game=document.getElementById('game');
 let x=580,y=390,jx=650,jy=390,dx=0,dy=0,coins=10,xp=0,watering=0,fish=0,butterflyFound=false,followButterfly=false,jackFollowing=true,mood='Happy',phase=0,dayPhase='Morning';
 const SAVE_KEY='drKatLittleWorldSave_v1';
+// Approximate solid regions aligned to the illustrated island map.
+const solidMap=[
+ {x1:0,y1:0,x2:345,y2:455},
+ {x1:660,y1:395,x2:1085,y2:675},
+ {x1:505,y1:0,x2:1200,y2:165}
+];
+function blocked(px,py){
+ if(px<34||px>1166||py<45||py>858)return true;
+ return solidMap.some(r=>px>r.x1-20&&px<r.x2+20&&py>r.y1-22&&py<r.y2+22);
+}
+
 function loadGame(){
  try{
   const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d)return;
@@ -348,11 +364,13 @@ function saveGame(){
  try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));return true;}catch(e){return false;}
 }
 loadGame();
+if(blocked(x,y)){x=580;y=390;}
+if(blocked(jx,jy)){jx=x+52;jy=y+8;}
 
 const objects=[
- {id:'garden',x:460,y:445,r:85,act:()=>{watering++;updateMood(mood);say(watering===1?'Dr. Kat waters the little plants. 🌱':'The garden looks fresher already! 🌼');if(watering%3===0)coins+=1;saveGame();}},
- {id:'river',x:830,y:545,r:85,act:()=>{fish++;saveGame();updateMood('Peaceful');say(fish%2?'You sit by the river and watch tiny ripples. 💧':'A tiny fish jumps! Riverside peace unlocked. 🐟');}},
- {id:'bench',x:640,y:680,r:75,act:()=>open('A quiet little break','Dr. Kat sits on the bench. The breeze moves through the trees. No tasks, no hurry. Just breathe. 🍃')},
+ {id:'garden',x:565,y:470,r:100,act:()=>{watering++;updateMood(mood);say(watering===1?'Dr. Kat waters the little plants. 🌱':'The garden looks fresher already! 🌼');if(watering%3===0)coins+=1;saveGame();}},
+ {id:'river',x:1030,y:285,r:100,act:()=>{fish++;saveGame();updateMood('Peaceful');say(fish%2?'You sit by the river and watch tiny ripples. 💧':'A tiny fish jumps! Riverside peace unlocked. 🐟');}},
+ {id:'bench',x:480,y:735,r:75,act:()=>open('A quiet little break','Dr. Kat sits on the bench. The breeze moves through the trees. No tasks, no hurry. Just breathe. 🍃')},
  {id:'butterfly',x:310,y:365,r:95,act:()=>{if(!butterflyFound){butterflyFound=true;saveGame();followButterfly=true;updateMood('Curious');open('A tiny visitor','The butterfly flutters ahead, then waits. Follow whenever you feel like it — there is no timer. 🦋');}else{followButterfly=!followButterfly;say(followButterfly?'The butterfly is leading the way again. 🦋':'The butterfly pauses among the grass.');}}}
 ];
 function moodIcon(){return mood==='Calm'?'😌':mood==='Curious'?'🦋':mood==='Amused'?'😄':mood==='Peaceful'?'🍃':'😊';}
@@ -404,16 +422,21 @@ function frame(){let ax=dx,ay=dy;if(keys.w||keys.arrowup)ay=-1;if(keys.s||keys.a
 const targetVX=ax*3.15,targetVY=ay*3.15;
 moveVX+=(targetVX-moveVX)*0.22;moveVY+=(targetVY-moveVY)*0.22;
 if(Math.abs(moveVX)<0.025)moveVX=0;if(Math.abs(moveVY)<0.025)moveVY=0;
-x+=moveVX;y+=moveVY;x=Math.max(25,Math.min(1175,x));y=Math.max(25,Math.min(850,y));player.style.left=(x-22)+'px';player.style.top=(y-55)+'px';
+// Axis-separated collision resolution lets the player slide naturally along fences and walls.
+const nextX=x+moveVX,nextY=y+moveVY;
+if(!blocked(nextX,y))x=nextX;else moveVX=0;
+if(!blocked(x,nextY))y=nextY;else moveVY=0;
+x=Math.max(34,Math.min(1166,x));y=Math.max(45,Math.min(858,y));
+player.style.left=(x-24)+'px';player.style.top=(y-58)+'px';
 const katWalking=Math.hypot(moveVX,moveVY)>.18;
 player.classList.toggle('walking',katWalking);
 if(Math.abs(moveVX)>.08)player.classList.toggle('facing-left',moveVX<0);
-if(jackFollowing){const targetX=x+48,targetY=y+8; jx+=(targetX-jx)*0.045; jy+=(targetY-jy)*0.045;}
+if(jackFollowing){const targetX=x+52,targetY=y+8;const jtx=jx+(targetX-jx)*0.055,jty=jy+(targetY-jy)*0.055;if(!blocked(jtx,jty)){jx=jtx;jy=jty;}else{const altX=jx+(x-52-jx)*0.045,altY=jy+(y+10-jy)*0.045;if(!blocked(altX,altY)){jx=altX;jy=altY;}}}
 jack.style.left=(jx-23)+'px';jack.style.top=(jy-58)+'px';
 const jackWalking=jackFollowing&&Math.hypot((x+48)-jx,(y+8)-jy)>.7;
 jack.classList.toggle('walking',jackWalking);
 if(jackFollowing&&Math.abs(moveVX)>.08)jack.classList.toggle('facing-left',moveVX<0);
-const scale=Math.min(Math.max(innerWidth/760,0.55),1);const tx=innerWidth/2-x*scale,ty=innerHeight/2-y*scale;world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
+const scale=Math.min(Math.max(innerWidth/1200,innerHeight/900),1.4);const viewW=innerWidth/scale,viewH=innerHeight/scale;const camX=Math.max(0,Math.min(1200-viewW,x-viewW/2));const camY=Math.max(0,Math.min(900-viewH,y-viewH/2));const tx=-camX*scale,ty=-camY*scale;world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
 if(followButterfly){const b=document.getElementById('butterfly');const bx=parseFloat(b.style.left),by=parseFloat(b.style.top);if(Math.hypot(x-bx,y-by)<75){b.style.left=(bx+((Math.random()-.5)*100))+'px';b.style.top=(by+((Math.random()-.5)*90))+'px';if(Math.random()>.72){followButterfly=false;open('A little discovery','The butterfly rests near a hidden envelope. Inside: “Be still, and know that I am God.” — Psalm 46:10 💌');coins+=3;document.getElementById('coins').textContent='💌 '+coins;saveGame();}}}
 requestAnimationFrame(frame);}
 
