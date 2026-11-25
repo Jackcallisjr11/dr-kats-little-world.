@@ -1,25 +1,20 @@
-DR. KAT'S LITTLE WORLD — PROTOTYPE 20
+DR. KAT'S LITTLE WORLD — PROTOTYPE 21
 ======================================
 
 WHAT'S NEW
-- Added gentle 2D walk-cycle animation for Dr. Kat and Jack.
-- Legs alternate, body and head bob subtly while walking.
-- Character faces the horizontal direction of travel.
-- Jack animates while following Kat.
-- Reduced-motion accessibility preference is respected.
+- Added optional gentle rain ambience as a visual effect.
+- Toggle rain / clear skies in Settings -> Island weather.
+- Weather choice persists on this device.
+- Rain overlay does not block joystick, buttons, or world interactions.
+- Respects reduced-motion preferences.
 
 PRESERVED
-- Prototype 19 game content, controls, movement physics, interactions,
-  menus, study flow, rewards, local saves, and backup import/export.
-- Existing character DOM and world layout.
+- Prototype 20 character walk cycles and movement.
+- Prototype 19 speed upgrade and existing world, interactions, menus,
+  study, rewards, profile, shop, local save, and manual backup transfer.
 
-PUBLISH UPDATE
+PUBLISH
 1. Extract this ZIP.
-2. Upload and replace the five files in the root of the existing public
-   GitHub repository: index.html, manifest.webmanifest, icon.svg, sw.js,
-   README.txt.
-3. Commit changes and wait for GitHub Pages deployment to succeed.
-4. Reopen the live site. If an old cached build appears, refresh or clear
-   the site's browser cache.
-
-This package is prepared locally and is not published until committed.
+2. Upload and replace all five files in the repository root.
+3. Commit changes and wait for GitHub Pages deployment.
+4. Refresh the live game; if the old version remains, clear site cache.
