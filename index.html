@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Dr. Kat's Little World</title>
+<meta name="theme-color" content="#a9d7a0">
+<meta name="description" content="A tiny peaceful island made just for Dr. Kat. Explore, relax, and take a little break.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a9d7a0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}
+#game{position:relative;width:100vw;height:100dvh;overflow:hidden;background:linear-gradient(#bce7ed 0 35%,#a6d89b 35% 100%)}
+#world{position:absolute;width:1200px;height:900px;left:0;top:0;transform-origin:0 0;background:
+ radial-gradient(ellipse at 70% 57%,#77c8d0 0 13%,#5eb3c0 13.5% 16%,transparent 16.5%),
+ radial-gradient(ellipse at 70% 57%,#b4d98d 0 20%,transparent 20.5%),
+ radial-gradient(ellipse at 25% 25%,#8fc77c 0 17%,transparent 17.5%),
+ radial-gradient(ellipse at 48% 75%,#8dc77e 0 20%,transparent 20.5%),
+ linear-gradient(135deg,#9fd18b,#b6dc91 48%,#91c77e)}
+.path{position:absolute;background:#d9c99d;border:5px solid #c5b185;border-radius:50%;opacity:.9}
+#path1{width:780px;height:130px;left:210px;top:420px;transform:rotate(-18deg)}
+#path2{width:140px;height:390px;left:590px;top:310px;transform:rotate(25deg)}
+.tree{position:absolute;width:76px;height:94px}
+.tree:before{content:"";position:absolute;left:12px;top:0;width:56px;height:58px;border-radius:50%;background:#4f9860;box-shadow:-17px 15px 0 #5da66a,15px 17px 0 #438b59}
+.tree:after{content:"";position:absolute;left:34px;top:48px;width:12px;height:43px;background:#8c6847}
+.flower{position:absolute;font-size:25px;filter:drop-shadow(0 2px 1px #658c50)}
+#riverbank{position:absolute;left:760px;top:455px;color:#fff;font-size:12px}
+.object{position:absolute;display:flex;align-items:center;justify-content:center;flex-direction:column;font-size:34px;filter:drop-shadow(0 3px 2px #54734c)}
+.object small{font-size:12px;color:#365b43;font-weight:700;background:#ffffffb8;padding:2px 7px;border-radius:10px}
+#player{position:absolute;width:44px;height:62px;display:flex;align-items:center;justify-content:center;flex-direction:column;z-index:5;transition:transform .12s}
+#player .head{width:23px;height:23px;border-radius:50%;background:#f2c8a5;border:2px solid #694b3c;position:relative}
+#player .hair{position:absolute;top:-5px;left:-2px;width:25px;height:12px;border-radius:50% 50% 20% 20%;background:#29252b}
+#player .body{width:28px;height:26px;background:#f4f1e9;border:2px solid #5b5b55;border-radius:8px 8px 5px 5px;margin-top:1px}
+#player .legs{width:23px;height:13px;border-left:6px solid #24252c;border-right:6px solid #24252c}
+#player .shadow{position:absolute;bottom:0;width:37px;height:9px;border-radius:50%;background:#466b3c66;z-index:-1}
+#hud{position:absolute;inset:0;pointer-events:none}
+#top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.pill{background:#ffffffdf;border:1px solid #ffffff;border-radius:16px;padding:8px 12px;color:#365b43;font-weight:700;font-size:13px;box-shadow:0 3px 12px #50764b22}
+#hint{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);background:#fffdf0eF;color:#3d6048;border-radius:18px;padding:9px 14px;font-size:13px;text-align:center;max-width:85%;box-shadow:0 4px 15px #365b4333}
+#controls{position:absolute;bottom:25px;left:18px;width:116px;height:116px;border-radius:50%;background:#ffffff70;border:2px solid #ffffffa8;pointer-events:auto}
+#stick{position:absolute;left:34px;top:34px;width:46px;height:46px;border-radius:50%;background:#fffdf0;border:2px solid #78a77b;box-shadow:0 2px 8px #456b4933}
+#action{position:absolute;right:20px;bottom:38px;width:72px;height:72px;border:0;border-radius:50%;background:#fff3c9;color:#426b4c;font-size:14px;font-weight:800;box-shadow:0 4px 12px #456b4933;pointer-events:auto}
+#toast{position:absolute;left:50%;top:22%;transform:translate(-50%,-10px);opacity:0;transition:.25s;background:#fffdf2;color:#365b43;padding:14px 18px;border-radius:16px;box-shadow:0 6px 22px #345a3c33;text-align:center;max-width:85%;pointer-events:none}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#modal{display:none;position:absolute;inset:0;background:#1d3c2b66;align-items:center;justify-content:center;padding:22px;pointer-events:auto}
+#modal.show{display:flex}.panel{width:min(340px,100%);background:#fffdf2;border-radius:22px;padding:22px;text-align:center;color:#365b43;box-shadow:0 12px 35px #203b2b55}
+.panel h2{margin:0 0 8px;font-size:21px}.panel p{font-size:14px;line-height:1.5}.panel button{border:0;background:#83b982;color:white;font-weight:800;border-radius:14px;padding:10px 18px;margin:5px}
+#mini{position:absolute;right:14px;top:65px;font-size:11px;color:#426b4c;background:#ffffffb9;padding:6px 9px;border-radius:12px}
+@media(min-width:700px){#controls{left:30px;bottom:30px}#action{right:30px;bottom:45px}}
+#jack{position:absolute;width:46px;height:66px;z-index:4;display:flex;align-items:center;flex-direction:column;cursor:pointer}
+#jack .tag{font-size:10px;font-weight:900;letter-spacing:1px;color:#fff;background:#4c6b53;border-radius:8px;padding:2px 7px;margin-bottom:2px;box-shadow:0 2px 4px #35533c55}
+#jack .jhead{width:23px;height:23px;border-radius:50%;background:#dcae8b;border:2px solid #4a382f;position:relative}
+#jack .jhead i{position:absolute;top:-5px;left:-2px;width:25px;height:12px;border-radius:60% 50% 20% 20%;background:#29242a}
+#jack .jbody{width:29px;height:27px;background:#262a31;border:2px solid #b59a5d;border-radius:8px 8px 5px 5px;margin-top:1px}
+#jack .jlegs{width:23px;height:13px;border-left:6px solid #20232a;border-right:6px solid #20232a}
+#jack .jshadow{position:absolute;bottom:0;width:37px;height:9px;border-radius:50%;background:#466b3c66;z-index:-1}
+#moodbar{max-width:calc(100% - 28px)}
+#game.evening #world{filter:saturate(.92) sepia(.05)}
+#game.sunset #world{filter:saturate(1.02) sepia(.12)}
+#game.night #world{filter:brightness(.78) saturate(.82)}
+#menuBtns{position:absolute;right:12px;top:166px;display:flex;gap:6px;z-index:15;pointer-events:auto}
+#menuBtns button{border:1px solid #fff;background:#ffffffdf;color:#365b43;border-radius:14px;padding:8px 10px;font-weight:750;font-size:12px;box-shadow:0 3px 10px #50764b22}
+#extraPanel{display:none;position:absolute;inset:0;background:#1d3c2b66;z-index:30;align-items:center;justify-content:center;padding:18px;pointer-events:auto}
+#extraPanel.show{display:flex}
+#extraCard{width:min(360px,100%);max-height:82dvh;overflow:auto;background:#fffdf2;border-radius:22px;padding:20px;color:#365b43;box-shadow:0 12px 35px #203b2b55}
+#extraCard h2{margin:0 0 12px;font-size:21px}
+#extraCard p{font-size:13px;line-height:1.45}
+#extraCard input[type=text]{width:100%;padding:10px;border:1px solid #b7cfad;border-radius:12px;background:white;color:#365b43;margin:5px 0 10px}
+#extraCard button{border:0;background:#83b982;color:white;font-weight:800;border-radius:12px;padding:9px 13px;margin:4px}
+#extraCard .secondary{background:#e7efdf;color:#365b43}
+#avatarPreview{width:68px;height:68px;border-radius:50%;background:#e6f0dd;object-fit:cover;display:block;margin:0 auto 8px;border:2px solid #a8c99e}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.stat{background:#edf4e7;border-radius:12px;padding:10px;font-size:13px}
+@media(max-width:420px){#menuBtns{top:164px}#menuBtns button{padding:7px 8px;font-size:11px}}
+#menuBtns{flex-wrap:wrap;max-width:calc(100% - 24px);justify-content:flex-end}
+#shopGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}
+.shopItem{background:#edf4e7;border-radius:14px;padding:10px;text-align:center;font-size:13px}
+.shopItem .emoji{font-size:27px}
+.shopItem button{margin-top:7px}
+.shopItem button:disabled{opacity:.5}
+#menuBtns{flex-wrap:wrap;max-width:calc(100% - 20px);justify-content:flex-end}
+#saveStatus{font-size:12px;color:#54735b;background:#f7fff0;border-radius:10px;padding:8px;margin-top:10px}
+#studyIntro{font-size:13px;line-height:1.5}
+#studyQuestion{background:#edf4e7;border-radius:14px;padding:12px;margin:10px 0;font-size:14px;line-height:1.45}
+.studyChoices{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.studyChoices button{margin:0;min-height:42px}
+#studySubject{width:100%;box-sizing:border-box;padding:11px;border:1px solid #b7cfad;border-radius:12px;background:#fff;color:#365b43;font-size:15px;margin:8px 0}
+.studyNote{font-size:12px;color:#6b806b}
+
+#extraPanel{z-index:60;pointer-events:auto}
+#extraCard{pointer-events:auto}
+#extraContent button{cursor:pointer;touch-action:manipulation}
+#extraContent input{font:inherit}
+#menuBtns{z-index:25;max-width:calc(100% - 24px);flex-wrap:wrap}
+#studySubject{width:100%;padding:12px;border:1px solid #b7cfad;border-radius:12px;font-size:16px}
+.studyChoices{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.studyChoices button{min-height:44px;margin:0}
+.shopGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shopItem{background:#edf4e7;border-radius:13px;padding:10px;text-align:center;font-size:13px}
+.shopItem button{margin-top:7px}
+.shopItem button:disabled{opacity:.55}
+
+#audioBadge{position:absolute;left:14px;top:158px;z-index:4;background:#ffffffdf;color:#365b43;border-radius:14px;padding:7px 10px;font-size:12px;font-weight:700;pointer-events:none;box-shadow:0 3px 10px #50764b22}
+@media(max-width:520px){#audioBadge{top:150px;left:12px;font-size:11px}}
+
+/* Prototype 12: responsive touch layout and accessibility */
+html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
+#game{min-height:100svh}
+#top{padding-top:env(safe-area-inset-top,0px)}
+#controls,#action,#menuBtns button{touch-action:none;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+#controls{width:clamp(112px,28vw,140px);height:clamp(112px,28vw,140px);bottom:calc(18px + env(safe-area-inset-bottom,0px));left:clamp(12px,4vw,28px)}
+#stick{width:48px;height:48px;left:calc(50% - 24px);top:calc(50% - 24px)}
+#action{width:clamp(72px,19vw,88px);height:clamp(72px,19vw,88px);right:clamp(12px,4vw,28px);bottom:calc(34px + env(safe-area-inset-bottom,0px));font-size:clamp(12px,3.2vw,15px)}
+#hint{bottom:calc(18px + env(safe-area-inset-bottom,0px));max-width:min(48%,390px);font-size:clamp(11px,2.8vw,13px);padding:8px 10px;z-index:8}
+#menuBtns{top:clamp(150px,21vh,178px);left:10px;right:10px;max-width:none;width:auto;justify-content:center;gap:5px}
+#menuBtns button{padding:8px 10px;font-size:clamp(10px,2.7vw,12px);white-space:nowrap}
+#mini{top:clamp(65px,10vh,90px)}
+#extraPanel{padding: max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom))}
+#extraCard{width:min(420px,100%);max-height: min(82dvh,720px);padding:clamp(16px,4vw,22px)}
+#extraCard button{min-height:40px;touch-action:manipulation}
+#toast{z-index:20}
+#audioBadge{top:clamp(145px,20vh,172px)}
+@media(max-width:520px){
+ #menuBtns{top:clamp(148px,20vh,166px);left:8px;right:8px}
+ #menuBtns button{padding:7px 8px;border-radius:12px}
+ #moodbar{top:112px!important}
+ #audioBadge{top:clamp(194px,27vh,218px);left:12px}
+ #hint{left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));max-width:calc(100% - 150px);font-size:11px}
+ #controls{bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+ #action{bottom:calc(26px + env(safe-area-inset-bottom,0px))}
+}
+@media(max-width:370px){
+ #menuBtns{top:154px;gap:4px}
+ #menuBtns button{padding:6px 7px;font-size:10px}
+ #hint{display:none}
+}
+@media(orientation:landscape) and (max-height:500px){
+ #menuBtns{top:64px;left:160px;right:12px;justify-content:flex-end}
+ #moodbar{top:64px!important}
+ #audioBadge{top:108px!important}
+ #controls{width:100px;height:100px;bottom:12px}
+ #action{width:66px;height:66px;bottom:18px}
+ #hint{bottom:12px}
+ #extraCard{max-height:88dvh}
+}
+
+
+#qaResults{display:grid;gap:7px;margin-top:10px}
+.qaRow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;background:#edf4e7;font-size:13px;color:#365b43}
+.qaState{font-weight:700;white-space:nowrap}
+
+/* Prototype 14: upgraded, consistent hand-drawn 2D character styling.
+   Keep original DOM, hitboxes, coordinates and movement logic unchanged. */
+#player{width:48px;height:68px;filter:drop-shadow(0 2px 1px #355c3d22)}
+#player .head{width:24px;height:24px;background:linear-gradient(145deg,#f7d5b8,#eab994);border:1.5px solid #765344;z-index:3}
+#player .head:after{content:"";position:absolute;width:4px;height:3px;border-radius:50%;background:#49372f;left:6px;top:11px;box-shadow:8px 0 #49372f}
+#player .hair{top:-7px;left:-3px;width:28px;height:13px;border-radius:60% 55% 25% 20%;background:#29232a;box-shadow:4px -3px 0 -1px #39303a}
+#player .hair:before{content:"";position:absolute;right:-7px;top:-1px;width:11px;height:17px;border-radius:70% 20% 70% 30%;background:#29232a;transform:rotate(28deg);transform-origin:top left}
+#player .hair:after{content:"";position:absolute;right:-10px;top:4px;width:8px;height:19px;border-radius:80% 15% 80% 25%;background:#332936;transform:rotate(-15deg)}
+#player .body{position:relative;width:31px;height:28px;background:linear-gradient(90deg,#e8e6df,#fffefa 48%,#e9e7e0);border:1.7px solid #77766f;border-radius:8px 8px 6px 6px;margin-top:2px;box-shadow:inset 0 -3px 0 #e2dfd5}
+#player .body:before{content:"✿";position:absolute;left:10px;top:5px;color:#9a9b8b;font-size:8px;line-height:1}
+#player .body:after{content:"";position:absolute;left:4px;right:4px;top:4px;height:2px;border-radius:2px;background:#d6d4ca}
+#player .legs{width:25px;height:15px;border:0;position:relative;margin-top:1px}
+#player .legs:before,#player .legs:after{content:"";position:absolute;top:0;width:8px;height:14px;background:linear-gradient(90deg,#171a20,#30333a);border-radius:2px 2px 3px 3px}
+#player .legs:before{left:3px}#player .legs:after{right:3px}
+#player .shadow{width:40px;height:8px;background:#466b3c55}
+#jack{width:48px;height:70px;filter:drop-shadow(0 2px 1px #355c3d22)}
+#jack .tag{font-size:10px;letter-spacing:1.1px;padding:3px 8px;border-radius:10px;background:#45664f}
+#jack .jhead{width:24px;height:24px;background:linear-gradient(145deg,#f1c8a8,#d9a782);border:1.5px solid #5b4035;z-index:2}
+#jack .jhead:after{content:"";position:absolute;left:6px;top:11px;width:4px;height:3px;border-radius:50%;background:#392b29;box-shadow:8px 0 #392b29}
+#jack .jhead i{top:-6px;left:-3px;width:28px;height:14px;border-radius:55% 55% 20% 20%;background:#29242a;box-shadow:3px -3px 0 -1px #40343c}
+#jack .jbody{position:relative;width:31px;height:29px;background:linear-gradient(90deg,#171c25,#303541 50%,#171c25);border:1.7px solid #c4a866;border-radius:8px 8px 5px 5px;margin-top:2px;box-shadow:inset 0 0 0 2px #292d37}
+#jack .jbody:before{content:"";position:absolute;left:13px;top:0;width:3px;height:25px;background:#d5bd7b}
+#jack .jbody:after{content:"✦";position:absolute;right:5px;top:7px;color:#d8c17e;font-size:7px}
+#jack .jlegs{width:25px;height:15px;border:0;position:relative;margin-top:1px}
+#jack .jlegs:before,#jack .jlegs:after{content:"";position:absolute;top:0;width:8px;height:14px;background:linear-gradient(90deg,#171a20,#30333a);border-radius:2px 2px 3px 3px}
+#jack .jlegs:before{left:3px}#jack .jlegs:after{right:3px}
+#jack .jshadow{width:40px;height:8px;background:#466b3c55}
+@keyframes katPonySway{0%,100%{transform:rotate(24deg)}50%{transform:rotate(34deg)}}
+#player .hair:before{animation:katPonySway 2.8s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){#player .hair:before{animation:none}}
+
+
+/* Prototype 15: final comfort and launch-preparation polish */
+#launchNote{padding:10px 12px;border-radius:13px;background:#edf5e8;color:#365b43;font-size:13px;line-height:1.45}
+#launchStatus{font-size:12px;color:#5e755f;margin-top:7px}
+#extraContent button{touch-action:manipulation}
+#extraContent input{max-width:100%}
+:focus-visible{outline:3px solid #6b9c70;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+</style>
+
+<meta name="theme-color" content="#a8d69a">
+<meta name="description" content="Dr. Kat's Little World — a peaceful little island to explore.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+</head>
+<body>
+<div id="game">
+ <div id="world">
+  <div class="path" id="path1"></div><div class="path" id="path2"></div>
+  <div class="tree" style="left:120px;top:170px"></div><div class="tree" style="left:270px;top:100px"></div>
+  <div class="tree" style="left:430px;top:160px"></div><div class="tree" style="left:930px;top:170px"></div>
+  <div class="tree" style="left:1050px;top:350px"></div><div class="tree" style="left:160px;top:650px"></div>
+  <div class="tree" style="left:430px;top:700px"></div><div class="tree" style="left:990px;top:700px"></div>
+  <div class="flower" style="left:360px;top:500px">🌼</div><div class="flower" style="left:405px;top:525px">🌱</div>
+  <div class="flower" style="left:465px;top:485px">🌷</div><div class="flower" style="left:515px;top:530px">🌼</div>
+  <div class="flower" style="left:565px;top:485px">🌿</div>
+  <div class="object" id="garden" style="left:440px;top:420px">🪴<small>Little Garden</small></div>
+  <div class="object" id="river" style="left:810px;top:515px">🪨<small>Riverside</small></div>
+  <div class="object" id="bench" style="left:620px;top:650px">🪑<small>Quiet Bench</small></div>
+  <div class="object" id="butterfly" style="left:290px;top:340px">🦋<small>Butterfly</small></div>
+  <div id="player"><div class="head"><div class="hair"></div></div><div class="body"></div><div class="legs"></div><div class="shadow"></div></div>
+  <div id="jack"><span class="tag">JACK</span><div class="jhead"><i></i></div><div class="jbody"></div><div class="jlegs"></div><div class="jshadow"></div></div>
+ </div>
+ <div id="hud">
+  <div id="top"><div class="pill">🌿 Dr. Kat's Little World</div><div class="pill" id="coins">💌 10</div></div>
+  <div id="mini">Prototype 18 · Save transfer</div>
+  <div id="menuBtns"><button id="profileBtn">👤 Profile</button><button id="bagBtn">🎒 Bag</button><button id="saveBtn">💾 Save</button><button id="studyBtn">📚 Study</button><button id="shopBtn">🛍️ Shop</button><button id="settingsBtn">⚙️</button></div><div id="moodbar" class="pill" style="position:absolute;top:112px;left:14px;z-index:3;font-size:12px">😊 Happy · ☀️ Morning</div><div id="audioBadge">🎵 Island sounds off</div>
+  <div id="hint">Move with the joystick or WASD. Walk near an object and tap INTERACT.</div>
+  <div id="controls"><div id="stick"></div></div><button id="action">INTERACT</button>
+  <div id="toast"></div>
+ </div>
+ <div id="modal"><div class="panel"><h2 id="mtitle">A little moment</h2><p id="mtext"></p><button id="close">Continue exploring</button></div></div><div id="extraPanel"><div id="extraCard"><h2 id="extraTitle">Profile</h2><div id="extraContent"></div><div style="text-align:center;margin-top:12px"><button class="secondary" id="extraClose">Back to island</button></div></div></div>
+</div>
+<script>
+(()=>{
+const world=document.getElementById('world'), player=document.getElementById('player'), stick=document.getElementById('stick');
+const toast=document.getElementById('toast'), modal=document.getElementById('modal'), jack=document.getElementById('jack'), game=document.getElementById('game');
+let x=580,y=390,jx=650,jy=390,dx=0,dy=0,coins=10,xp=0,watering=0,fish=0,butterflyFound=false,followButterfly=false,jackFollowing=true,mood='Happy',phase=0,dayPhase='Morning';
+const SAVE_KEY='drKatLittleWorldSave_v1';
+function loadGame(){
+ try{
+  const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(!d)return;
+  if(Number.isFinite(d.x))x=d.x;if(Number.isFinite(d.y))y=d.y;
+  if(Number.isFinite(d.jx))jx=d.jx;if(Number.isFinite(d.jy))jy=d.jy;
+  if(Number.isFinite(d.coins))coins=d.coins;if(Number.isFinite(d.xp))xp=d.xp;
+  if(Number.isFinite(d.watering))watering=d.watering;
+  if(Number.isFinite(d.fish))fish=d.fish;
+  butterflyFound=!!d.butterflyFound;
+  mood=['Happy','Calm','Curious','Amused','Peaceful'].includes(d.mood)?d.mood:'Happy';
+  phase=Number.isInteger(d.phase)?((d.phase%4)+4)%4:0;
+  dayPhase=['Morning','Evening','Sunset','Night'][phase];
+  if(Array.isArray(d.ownedItems))localStorage.setItem('katWorldItems',JSON.stringify(d.ownedItems));
+  const b=document.getElementById('butterfly');if(butterflyFound&&b)b.style.opacity='.8';
+ }catch(e){console.warn('Save data could not be loaded',e);}
+}
+function saveGame(){
+ const data={version:1,x,y,jx,jy,coins,xp,watering,fish,butterflyFound,mood,phase,
+  ownedItems:JSON.parse(localStorage.getItem('katWorldItems')||'[]'),
+  playerName:localStorage.getItem('katWorldName')||'Dr. Kat',
+  avatar:localStorage.getItem('katWorldAvatar')||'',
+  sound:localStorage.getItem('katWorldSound')||'on',
+  savedAt:new Date().toISOString()};
+ try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));return true;}catch(e){return false;}
+}
+loadGame();
+
+const objects=[
+ {id:'garden',x:460,y:445,r:85,act:()=>{watering++;updateMood(mood);say(watering===1?'Dr. Kat waters the little plants. 🌱':'The garden looks fresher already! 🌼');if(watering%3===0)coins+=1;saveGame();}},
+ {id:'river',x:830,y:545,r:85,act:()=>{fish++;saveGame();updateMood('Peaceful');say(fish%2?'You sit by the river and watch tiny ripples. 💧':'A tiny fish jumps! Riverside peace unlocked. 🐟');}},
+ {id:'bench',x:640,y:680,r:75,act:()=>open('A quiet little break','Dr. Kat sits on the bench. The breeze moves through the trees. No tasks, no hurry. Just breathe. 🍃')},
+ {id:'butterfly',x:310,y:365,r:95,act:()=>{if(!butterflyFound){butterflyFound=true;saveGame();followButterfly=true;updateMood('Curious');open('A tiny visitor','The butterfly flutters ahead, then waits. Follow whenever you feel like it — there is no timer. 🦋');}else{followButterfly=!followButterfly;say(followButterfly?'The butterfly is leading the way again. 🦋':'The butterfly pauses among the grass.');}}}
+];
+function moodIcon(){return mood==='Calm'?'😌':mood==='Curious'?'🦋':mood==='Amused'?'😄':mood==='Peaceful'?'🍃':'😊';}
+function phaseIcon(){return dayPhase==='Evening'?'🌆':dayPhase==='Sunset'?'🌇':dayPhase==='Night'?'🌙':'☀️';}
+function updateMood(next){mood=next;document.getElementById('moodbar').textContent=moodIcon()+' '+mood+' · '+phaseIcon()+' '+dayPhase;}
+function changeTime(){phase=(phase+1)%4;dayPhase=['Morning','Evening','Sunset','Night'][phase];game.classList.remove('evening','sunset','night');if(dayPhase==='Evening')game.classList.add('evening');if(dayPhase==='Sunset')game.classList.add('sunset');if(dayPhase==='Night')game.classList.add('night');updateMood(mood);}
+setInterval(changeTime,60000);
+updateMood('Happy');
+function say(t){toast.textContent=t;toast.classList.add('show');clearTimeout(say.timer);say.timer=setTimeout(()=>toast.classList.remove('show'),2400);document.getElementById('coins').textContent='💌 '+coins;}
+function updateWallet(){document.getElementById('coins').textContent='💌 '+coins;}
+function open(title,msg){document.getElementById('mtitle').textContent=title;document.getElementById('mtext').textContent=msg;modal.classList.add('show');}
+document.getElementById('close').onclick=()=>modal.classList.remove('show');
+function showSavePanel(){
+ const ok=saveGame();
+ open('💾 Your little world is saved',ok?'Your island progress is saved on this device. Coins, position, garden visits, river moments, butterfly discovery, mood and profile details are kept here. 🌿':'Could not save right now. Please check your device storage.');
+}
+document.getElementById('saveBtn').addEventListener('click',showSavePanel);
+window.addEventListener('pagehide',saveGame);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame();});
+setInterval(saveGame,5000);
+const jackLines = {
+ garden:["Dr. Kat: Jack! Andha plants-ku water oothuniya?","Jack: Ippo dhaan madam! Plant-ku water venum, swimming pool vendaam-nu theriyum!"],
+ river:["Dr. Kat: Oru fish kooda pudikkalaya, Jack?","Jack: Fish ellam enna paathu escape aaguthu madam!"],
+ bench:["Dr. Kat: Inga enna panra?","Jack: Unga island maintenance department. Salary mattum pending madam!"],
+ forest:["Dr. Kat: Jack uh, nee thirumba inga vandhutiya?","Jack: Madam, unga island-ku naan permanent employee!"]
+};
+function jackTalk(){updateMood('Amused');
+ const o=nearest();let key=o?.id==='garden'?'garden':o?.id==='river'?'river':o?.id==='bench'?'bench':'forest';
+ const lines=jackLines[key];open("Jack says…",lines[0]+"\n\n"+lines[1]+"\n\n(Hehe! 😄)");
+}
+jack.addEventListener('click',e=>{e.stopPropagation();jackTalk();});
+jack.addEventListener('pointerdown',e=>{e.stopPropagation();});
+
+function nearest(){let best=null,dist=1e9;for(const o of objects){const d=Math.hypot(x-o.x,y-o.y);if(d<o.r&&d<dist){best=o;dist=d;}}return best;}
+function interact(){const o=nearest();if(o)o.act();else if(Math.hypot(x-jx,y-jy)<95)jackTalk();else say('Konjam pakkathula poi interact pannunga, Dr. Kat! 🌿');}
+document.getElementById('action').onclick=interact;
+const keys={};window.addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if(e.key===' '||e.key==='Enter'){e.preventDefault();interact();}});
+window.addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+let joy={active:false,cx:0,cy:0};
+const pad=document.getElementById('controls');
+pad.addEventListener('pointerdown',e=>{joy.active=true;pad.setPointerCapture(e.pointerId);joy.cx=e.clientX;joy.cy=e.clientY;moveStick(e);});
+pad.addEventListener('pointermove',e=>{if(joy.active)moveStick(e);});
+function moveStick(e){const r=pad.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let vx=e.clientX-cx,vy=e.clientY-cy,len=Math.hypot(vx,vy),m=32;if(len>m){vx=vx/len*m;vy=vy/len*m;}dx=vx/m;dy=vy/m;stick.style.transform=`translate(${vx}px,${vy}px)`;}
+function release(){joy.active=false;dx=dy=0;stick.style.transform='translate(0,0)';}
+pad.addEventListener('pointerup',release);pad.addEventListener('pointercancel',release);
+function frame(){let ax=dx,ay=dy;if(keys.w||keys.arrowup)ay=-1;if(keys.s||keys.arrowdown)ay=1;if(keys.a||keys.arrowleft)ax=-1;if(keys.d||keys.arrowright)ax=1;let l=Math.hypot(ax,ay);if(l){x+=ax/l*2.35;y+=ay/l*2.35;}x=Math.max(25,Math.min(1175,x));y=Math.max(25,Math.min(850,y));player.style.left=(x-22)+'px';player.style.top=(y-55)+'px';
+if(jackFollowing){const targetX=x+48,targetY=y+8; jx+=(targetX-jx)*0.045; jy+=(targetY-jy)*0.045;}
+jack.style.left=(jx-23)+'px';jack.style.top=(jy-58)+'px';
+const scale=Math.min(Math.max(innerWidth/760,0.55),1);const tx=innerWidth/2-x*scale,ty=innerHeight/2-y*scale;world.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;
+if(followButterfly){const b=document.getElementById('butterfly');const bx=parseFloat(b.style.left),by=parseFloat(b.style.top);if(Math.hypot(x-bx,y-by)<75){b.style.left=(bx+((Math.random()-.5)*100))+'px';b.style.top=(by+((Math.random()-.5)*90))+'px';if(Math.random()>.72){followButterfly=false;open('A little discovery','The butterfly rests near a hidden envelope. Inside: “Be still, and know that I am God.” — Psalm 46:10 💌');coins+=3;document.getElementById('coins').textContent='💌 '+coins;saveGame();}}}
+requestAnimationFrame(frame);}
+
+
+// Cumulative menu layer: profile, bag, settings and shop all share this working overlay.
+const extraPanel=document.getElementById('extraPanel');
+const extraTitle=document.getElementById('extraTitle');
+const extraContent=document.getElementById('extraContent');
+function showExtra(title,markup){
+ extraTitle.textContent=title;
+ extraContent.innerHTML=markup;
+ extraPanel.classList.add('show');
+}
+function closeExtra(){extraPanel.classList.remove('show');}
+document.getElementById('extraClose').addEventListener('click',closeExtra);
+
+let profileName=localStorage.getItem('katWorldName')||'Dr. Kat';
+let profilePhoto=localStorage.getItem('katWorldAvatar')||'';
+let soundEnabled=localStorage.getItem('katWorldSound')!=='off';
+
+document.getElementById('profileBtn').addEventListener('click',()=>{
+ const photo=profilePhoto?`<img id="profilePreview" src="${profilePhoto}" style="width:76px;height:76px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 10px">`:
+ `<div style="font-size:42px;text-align:center">🌸</div>`;
+ showExtra('👤 Player Profile',`${photo}
+ <p>Display name</p><input id="profileNameInput" type="text" maxlength="24" value="${profileName.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" style="width:100%;padding:11px;border:1px solid #b7cfad;border-radius:10px">
+ <p>Profile photo (optional)</p><input id="profilePhotoInput" type="file" accept="image/*" style="max-width:100%">
+ <div class="stats"><div class="stat">⭐ Level<br><b>${Math.floor(xp/100)+1}</b></div><div class="stat">✨ XP<br><b>${xp}</b></div><div class="stat">💌 Coins<br><b>${coins}</b></div><div class="stat">🦋 Discovery<br><b>${butterflyFound?'Found':'Waiting'}</b></div></div>
+ <button id="profileSave">Save profile</button>`);
+});
+
+document.getElementById('bagBtn').addEventListener('click',()=>{
+ const owned=JSON.parse(localStorage.getItem('katWorldItems')||'[]');
+ const names={warmmilk:'🥛 Warm Milk',honey:'🍯 Honey Jar',blanket:'🧺 Cozy Blanket',juice:'🧃 Fruit Juice',book:'📖 Little Book',shell:'🐚 River Shell'};
+ const list=owned.length?owned.map(id=>`<div class="shopItem">${names[id]||id}</div>`).join(''):'<p>Your little bag is empty. Visit the shop whenever you like. 🌱</p>';
+ showExtra('🎒 Little Bag',`<p>💌 Coins: <b>${coins}</b></p><div class="shopGrid">${list}</div><p>Garden visits: ${watering} · Riverside moments: ${fish}</p>`);
+});
+
+document.getElementById('settingsBtn').addEventListener('click',()=>{
+ showExtra('⚙️ Settings',`<p><b>Sound preference</b></p><button id="soundToggle">${soundEnabled?'🔊 Sound on':'🔇 Sound off'}</button>
+ <p><b>Joystick size</b> <span id="joySizeLabel">100%</span></p><input id="joySize" type="range" min="80" max="125" value="${localStorage.getItem('katJoySize')||100}" style="width:100%">
+ <p><b>Interact button size</b> <span id="actionSizeLabel">100%</span></p><input id="actionSize" type="range" min="80" max="125" value="${localStorage.getItem('katActionSize')||100}" style="width:100%">
+ <p><b>Controls</b><br>Mobile: left joystick to move, INTERACT on the right.<br>Computer: WASD or arrow keys.</p>
+ <p>Tip: rotate your phone to landscape for a wider view.</p>
+ <button id="fullscreenToggle">⛶ Enter fullscreen</button>
+ <div id="launchNote"><b>🌿 A little reminder</b><br>This island has no deadlines, no lost streaks and no wrong way to explore. Move at your own pace.</div>
+ <p><b>💾 Move your island to another phone</b><br>Export a backup here, then import that file on the other device. This is a manual transfer, not automatic cloud sync.</p>
+ <button id="exportSave">⬇️ Export island backup</button>
+ <label for="importSaveFile" style="display:block;margin-top:10px;font-weight:700">📥 Import backup file</label>
+ <input id="importSaveFile" type="file" accept="application/json,.json" style="display:block;width:100%;margin-top:6px">
+ <div id="transferStatus" style="font-size:12px;color:#5e755f;margin-top:7px">Your backup stays in your control.</div>
+ <button id="runChecks">🧪 Run game checks</button><div id="qaResults"></div>
+ <div id="launchStatus">Save status: stored on this device when you save or make progress.</div>
+ <p>Your progress is saved on this device. Clearing browser data may erase local saves.</p>`);
+});
+
+const shopCatalog=[
+ {id:'warmmilk',name:'Warm Milk',emoji:'🥛',price:3,desc:'A cozy little drink'},
+ {id:'honey',name:'Honey Jar',emoji:'🍯',price:4,desc:'A sweet island treat'},
+ {id:'blanket',name:'Cozy Blanket',emoji:'🧺',price:6,desc:'For quiet breaks'},
+ {id:'juice',name:'Fruit Juice',emoji:'🧃',price:5,desc:'A refreshing sip'},
+ {id:'book',name:'Little Book',emoji:'📖',price:7,desc:'A peaceful read'},
+ {id:'shell',name:'River Shell',emoji:'🐚',price:5,desc:'A tiny keepsake'}
+];
+function renderShop(){
+ const owned=JSON.parse(localStorage.getItem('katWorldItems')||'[]');
+ const cards=shopCatalog.map(it=>`<div class="shopItem"><div style="font-size:27px">${it.emoji}</div><b>${it.name}</b><br><small>${it.desc}</small><br><b>💌 ${it.price}</b><br><button data-shopbuy="${it.id}" ${owned.includes(it.id)?'disabled':''}>${owned.includes(it.id)?'Owned':'Buy'}</button></div>`).join('');
+ showExtra('🛍️ Little Island Shop',`<p>Your coins: <b>💌 ${coins}</b></p><div class="shopGrid">${cards}</div><p>No pressure to buy anything. Just enjoy your island. 🌿</p>`);
+}
+document.getElementById('shopBtn').addEventListener('click',renderShop);
+
+
+function applyTouchSizes(){
+ const j=Number(localStorage.getItem('katJoySize')||100),a=Number(localStorage.getItem('katActionSize')||100);
+ const controls=document.getElementById('controls'),action=document.getElementById('action');
+ controls.style.width=(116*j/100)+'px';controls.style.height=(116*j/100)+'px';
+ action.style.width=(72*a/100)+'px';action.style.height=(72*a/100)+'px';
+}
+applyTouchSizes();
+
+
+
+const KAT_TRANSFER_KEYS=['drKatLittleWorldSave_v1','katWorldItems','katWorldName','katWorldAvatar','katWorldSound','katJoySize','katActionSize'];
+function exportIslandBackup(){
+ saveGame();
+ const payload={format:'dr-kat-little-world-backup',formatVersion:1,createdAt:new Date().toISOString(),data:{}};
+ KAT_TRANSFER_KEYS.forEach(k=>{const v=localStorage.getItem(k);if(v!==null)payload.data[k]=v;});
+ const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+ const url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download='dr-kat-island-backup.json';document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1200);
+ const s=document.getElementById('transferStatus');if(s)s.textContent='Backup exported. Keep the JSON file safe and import it on the other phone. 💚';
+}
+function importIslandBackup(file){
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+  try{
+   const payload=JSON.parse(String(reader.result||''));
+   if(payload.format!=='dr-kat-little-world-backup'||payload.formatVersion!==1||!payload.data||typeof payload.data!=='object')throw new Error('This is not a supported island backup.');
+   const allowed=Object.keys(payload.data).filter(k=>KAT_TRANSFER_KEYS.includes(k));
+   if(!allowed.length)throw new Error('No compatible saved game data was found.');
+   allowed.forEach(k=>{const v=payload.data[k];if(typeof v==='string')localStorage.setItem(k,v);});
+   const s=document.getElementById('transferStatus');if(s)s.textContent='Backup imported. Reloading your island…';
+   setTimeout(()=>location.reload(),700);
+  }catch(err){
+   const s=document.getElementById('transferStatus');if(s)s.textContent='Could not import: '+err.message;
+  }
+ };
+ reader.onerror=()=>{const s=document.getElementById('transferStatus');if(s)s.textContent='Could not read that file. Please try again.';};
+ reader.readAsText(file);
+}
+
+function runIntegrationChecks(){
+ const checks=[
+  ['Island game screen',!!document.getElementById('game')],
+  ['Movement joystick',!!document.getElementById('controls')&&!!document.getElementById('stick')],
+  ['Interact control',!!document.getElementById('action')],
+  ['Profile / Bag / Save / Study / Shop', ['profileBtn','bagBtn','saveBtn','studyBtn','shopBtn'].every(id=>!!document.getElementById(id))],
+  ['Settings and popup panel',!!document.getElementById('settingsBtn')&&!!document.getElementById('extraPanel')],
+  ['Study question area',!!document.getElementById('studyBtn')&&typeof openStudy==='function'],
+  ['Island audio controls',typeof startAmbient==='function'&&typeof stopAmbient==='function'],
+  ['Mobile size preferences',typeof applyTouchSizes==='function'],
+  ['Local save storage',(()=>{try{localStorage.setItem('__kat_test','ok');localStorage.removeItem('__kat_test');return true;}catch(e){return false;}})()]
+ ];
+ const root=document.getElementById('qaResults');
+ root.innerHTML=checks.map(([label,ok])=>`<div class="qaRow"><span>${label}</span><span class="qaState">${ok?'✓ Available':'! Check needed'}</span></div>`).join('')+
+ `<p style="font-size:11px;color:#61745e">These are interface and storage checks, not a complete device play-test. Please try movement, interactions and study on your phone too.</p>`;
+}
+
+extraContent.addEventListener('change',e=>{
+ if(e.target.id==='importSaveFile'&&e.target.files&&e.target.files[0])importIslandBackup(e.target.files[0]);
+});
+extraContent.addEventListener('click',e=>{
+ if(e.target.id==='profileSave'){
+  profileName=(document.getElementById('profileNameInput').value.trim()||'Dr. Kat');
+  localStorage.setItem('katWorldName',profileName);
+  const f=document.getElementById('profilePhotoInput').files[0];
+  if(f){const r=new FileReader();r.onload=()=>{profilePhoto=r.result;localStorage.setItem('katWorldAvatar',profilePhoto);showExtra('👤 Profile saved',`<p>Profile updated for <b>${profileName}</b>. 🌷</p>`);};r.readAsDataURL(f);}
+  else showExtra('👤 Profile saved',`<p>Profile updated for <b>${profileName}</b>. 🌷</p>`);
+ }
+ if(e.target.id==='fullscreenToggle'){
+  const root=document.documentElement;
+  if(!document.fullscreenElement && root.requestFullscreen){
+   root.requestFullscreen().then(()=>{e.target.textContent='⛶ Exit fullscreen';}).catch(()=>{e.target.textContent='Fullscreen unavailable in this browser';});
+  }else if(document.fullscreenElement && document.exitFullscreen){
+   document.exitFullscreen().then(()=>{e.target.textContent='⛶ Enter fullscreen';}).catch(()=>{});
+  }else{e.target.textContent='Fullscreen unavailable in this browser';}
+ }
+ if(e.target.id==='exportSave'){exportIslandBackup();}
+ if(e.target.id==='runChecks'){runIntegrationChecks();}
+ if(e.target.id==='soundToggle'){soundEnabled=!soundEnabled;localStorage.setItem('katWorldSound',soundEnabled?'on':'off');e.target.textContent=soundEnabled?'🔊 Sound on':'🔇 Sound off';syncAmbient();}
+ const buyId=e.target.dataset.shopbuy;
+ if(buyId){
+  const item=shopCatalog.find(v=>v.id===buyId),owned=JSON.parse(localStorage.getItem('katWorldItems')||'[]');
+  if(!item||owned.includes(buyId))return;
+  if(coins<item.price){showExtra('💌 A little more time',`<p>You need ${item.price-coins} more coins. No rush, Dr. Kat. 💚</p>`);return;}
+  coins-=item.price;owned.push(buyId);localStorage.setItem('katWorldItems',JSON.stringify(owned));saveGame();updateWallet();renderShop();
+ }
+});
+extraPanel.addEventListener('click',e=>{if(e.target===extraPanel)closeExtra();});
+
+
+
+document.addEventListener('fullscreenchange',()=>{
+ const b=document.getElementById('fullscreenToggle');
+ if(b)b.textContent=document.fullscreenElement?'⛶ Exit fullscreen':'⛶ Enter fullscreen';
+});
+extraContent.addEventListener('input',e=>{
+ if(e.target.id==='joySize'){
+  localStorage.setItem('katJoySize',e.target.value);
+  document.getElementById('joySizeLabel').textContent=e.target.value+'%';applyTouchSizes();
+ }
+ if(e.target.id==='actionSize'){
+  localStorage.setItem('katActionSize',e.target.value);
+  document.getElementById('actionSizeLabel').textContent=e.target.value+'%';applyTouchSizes();
+ }
+});
+
+// Prototype 11: optional procedural ambient audio; no external files or network requests.
+let ambientCtx=null, ambientMaster=null, ambientNodes=[], ambientTimer=null, ambientOn=false;
+function audioContext(){
+ const AC=window.AudioContext||window.webkitAudioContext;
+ if(!AC)return null;
+ if(!ambientCtx)ambientCtx=new AC();
+ return ambientCtx;
+}
+function makeNoise(ctx){
+ const length=ctx.sampleRate*2;
+ const buffer=ctx.createBuffer(1,length,ctx.sampleRate);
+ const data=buffer.getChannelData(0);
+ let last=0;
+ for(let i=0;i<length;i++){const white=Math.random()*2-1;last=(last+0.025*white)/1.025;data[i]=last*3.5;}
+ const src=ctx.createBufferSource();src.buffer=buffer;src.loop=true;
+ const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=520;
+ const gain=ctx.createGain();gain.gain.value=0.018;
+ src.connect(filter);filter.connect(gain);gain.connect(ambientMaster);src.start();
+ ambientNodes.push(src,filter,gain);
+}
+function birdChirp(){
+ if(!ambientOn||!ambientCtx||ambientCtx.state!=='running')return;
+ const ctx=ambientCtx;
+ const osc=ctx.createOscillator(), gain=ctx.createGain();
+ const now=ctx.currentTime;
+ const start=now+0.02;
+ osc.type='sine';
+ const f=dayPhase==='Night'?880:dayPhase==='Sunset'?1150:1450;
+ osc.frequency.setValueAtTime(f,start);
+ osc.frequency.exponentialRampToValueAtTime(f*1.28,start+0.09);
+ osc.frequency.exponentialRampToValueAtTime(f*0.82,start+0.22);
+ gain.gain.setValueAtTime(0.0001,start);
+ gain.gain.exponentialRampToValueAtTime(0.022,start+0.035);
+ gain.gain.exponentialRampToValueAtTime(0.0001,start+0.25);
+ osc.connect(gain);gain.connect(ambientMaster);osc.start(start);osc.stop(start+0.27);
+}
+function startAmbient(){
+ const ctx=audioContext();
+ if(!ctx){document.getElementById('audioBadge').textContent='🔇 Audio unavailable';return;}
+ if(ambientOn){if(ctx.state==='suspended')ctx.resume();return;}
+ ambientOn=true;
+ ctx.resume().then(()=>{
+  if(!ambientOn)return;
+  ambientMaster=ctx.createGain();ambientMaster.gain.value=0.62;ambientMaster.connect(ctx.destination);
+  makeNoise(ctx);
+  // Soft, low-volume nature tones. Bird calls are spaced out to keep the island calm.
+  const bell=ctx.createOscillator(), bellGain=ctx.createGain();
+  bell.type='sine';bell.frequency.value=196;
+  bellGain.gain.value=0.0035;bell.connect(bellGain);bellGain.connect(ambientMaster);bell.start();
+  ambientNodes.push(bell,bellGain);
+  birdChirp();ambientTimer=setInterval(()=>{if(Math.random()>.25)birdChirp();},6500);
+  document.getElementById('audioBadge').textContent='🎵 Island sounds on';
+ }).catch(()=>{ambientOn=false;document.getElementById('audioBadge').textContent='🔇 Tap Sound to enable';});
+}
+function stopAmbient(){
+ ambientOn=false;
+ if(ambientTimer){clearInterval(ambientTimer);ambientTimer=null;}
+ if(ambientCtx&&ambientMaster){
+  try{ambientMaster.gain.setTargetAtTime(0,ambientCtx.currentTime,0.08);}catch(e){}
+  setTimeout(()=>{ambientNodes.forEach(n=>{try{n.stop?.();n.disconnect?.();}catch(e){}});ambientNodes=[];try{ambientMaster.disconnect();}catch(e){}ambientMaster=null;},350);
+ }
+ document.getElementById('audioBadge').textContent='🎵 Island sounds off';
+}
+function syncAmbient(){if(soundEnabled)startAmbient();else stopAmbient();}
+
+// Prototype 10: optional, free-text study check-in and one gentle MCQ.
+const studyQuestions={
+ physics:{q:'Which unit is used to measure force?',a:['Joule','Newton','Watt','Pascal'],correct:1,why:'Force is measured in newtons (N).'},
+ chemistry:{q:'What is the chemical symbol for water?',a:['CO₂','O₂','H₂O','NaCl'],correct:2,why:'Water is H₂O.'},
+ maths:{q:'What is 7 × 8?',a:['54','56','64','48'],correct:1,why:'7 multiplied by 8 equals 56.'},
+ mathematics:{q:'What is 7 × 8?',a:['54','56','64','48'],correct:1,why:'7 multiplied by 8 equals 56.'},
+ biology:{q:'Which part of a plant mainly absorbs water from the soil?',a:['Flower','Leaf','Root','Fruit'],correct:2,why:'Roots absorb water and minerals from the soil.'},
+ anatomy:{q:'Which organ pumps blood around the human body?',a:['Lungs','Heart','Kidney','Stomach'],correct:1,why:'The heart pumps blood around the body.'},
+ botany:{q:'Which part of a plant mainly absorbs water from the soil?',a:['Flower','Leaf','Root','Fruit'],correct:2,why:'Roots absorb water and minerals from the soil.'},
+ zoology:{q:'What is the largest living animal?',a:['Elephant','Blue whale','Giraffe','Shark'],correct:1,why:'The blue whale is the largest living animal.'},
+ 'computer science':{q:'Which of these is a programming language?',a:['HTML','Java','HTTP','URL'],correct:1,why:'Java is a programming language.'},
+ cs:{q:'Which of these is a programming language?',a:['HTML','Java','HTTP','URL'],correct:1,why:'Java is a programming language.'},
+ english:{q:'Choose the correct plural of “child”.',a:['Childs','Childes','Children','Childrens'],correct:2,why:'The plural form of child is children.'}
+};
+const studyAliases={
+ physics:'physics',phy:'physics',chem:'chemistry',chemistry:'chemistry',math:'maths',maths:'maths',
+ bio:'biology',biology:'biology',anat:'anatomy',anatomy:'anatomy',botany:'botany',zoology:'zoology',
+ 'computer science':'computer science',cse:'computer science',cs:'cs',english:'english'
+};
+let currentStudy=null;
+function openStudy(){
+ showExtra('📚 What are you studying today?',`
+ <div id="studyIntro">Hey Dr. Kat! 💚 Tell me your subject. I'll give you one tiny, easy question. No marks, no pressure — just a little brain break.</div>
+ <input id="studySubject" type="text" maxlength="50" placeholder="Type any subject...">
+ <div style="text-align:center"><button id="makeQuestion">Let's try 🌼</button></div>
+ <p class="studyNote">You can type Physics, Chemistry, Maths, Biology, Anatomy, Botany, Computer Science, English and more.</p>`);
+}
+function makeStudyQuestion(){
+ const raw=(document.getElementById('studySubject')?.value||'').trim();
+ if(!raw){document.getElementById('studyIntro').textContent='Subject name type pannunga, Dr. Kat. 💚';return;}
+ const norm=raw.toLowerCase().replace(/\s+/g,' ').replace(/[^a-z ]/g,'').trim();
+ const key=studyAliases[norm]||norm;
+ const item=studyQuestions[key];
+ if(!item){
+  document.getElementById('studyIntro').textContent=`"${raw}" noted! Indha subject-ku question set innum ready pannala. Konjam specific topic or subject name type pannunga; unrelated question kudukka maatten. 🌿`;
+  return;
+ }
+ currentStudy={subject:raw,item};
+ extraTitle.textContent='🌼 A tiny question for you';
+ extraContent.innerHTML=`<p><b>${raw}</b></p><div id="studyQuestion">${item.q}</div><div class="studyChoices">${item.a.map((a,i)=>`<button data-answer="${i}">${String.fromCharCode(65+i)}. ${a}</button>`).join('')}</div><p class="studyNote">Take your time. There's no timer and no penalty. 💚</p>`;
+}
+function answerStudy(index){
+ if(!currentStudy)return;
+ const item=currentStudy.item;
+ if(index===item.correct){
+  coins+=5;xp+=10;updateWallet();saveGame();
+  extraTitle.textContent='🎉 Lovely work, Dr. Kat!';
+  extraContent.innerHTML=`<p>That's correct! ${item.why}</p><div class="stats"><div class="stat">💌 Coins<br><b>+5</b></div><div class="stat">✨ XP<br><b>+10</b></div></div><p>One little step at a time. Proud of you! 🌷</p><button id="studyAgain">Try another subject</button>`;
+ }else{
+  extraTitle.textContent="💚 It is okay, Dr. Kat";
+  extraContent.innerHTML=`<p>No worries — no coins lost, no marks deducted.</p><div id="studyQuestion">${item.why}</div><p>You can take a peaceful break, explore the island, or try another question whenever you feel ready. 🦋</p><button id="studyAgain">Try another subject</button>`;
+ }
+ currentStudy=null;
+}
+document.getElementById('studyBtn').addEventListener('click',openStudy);
+window.addEventListener('keydown',e=>{if(e.key==='Escape')closeExtra();});
+extraContent.addEventListener('click',e=>{
+ if(e.target.id==='makeQuestion')makeStudyQuestion();
+ if(e.target.dataset.answer!==undefined)answerStudy(Number(e.target.dataset.answer));
+ if(e.target.id==='studyAgain')openStudy();
+});
+
+frame();
+})();
+</script>
+</div>
+<script>
+/* Prototype 18: installable app shell + offline cache for the published game. */
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body></html>

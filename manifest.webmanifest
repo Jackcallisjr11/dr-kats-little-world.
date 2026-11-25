@@ -1,0 +1,19 @@
+{
+  "name": "Dr. Kat's Little World",
+  "short_name": "Kat's World",
+  "description": "A peaceful little island made just for Dr. Kat.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#a9d7a0",
+  "theme_color": "#a9d7a0",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
