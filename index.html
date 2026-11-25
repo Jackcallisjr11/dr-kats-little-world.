@@ -11,12 +11,11 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#a9d7a0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;touch-action:none}
 #game{position:relative;width:100vw;height:100dvh;overflow:hidden;background:linear-gradient(#bce7ed 0 35%,#a6d89b 35% 100%)}
-#world{position:absolute;width:1200px;height:900px;left:0;top:0;transform-origin:0 0;background:
- radial-gradient(ellipse at 70% 57%,#77c8d0 0 13%,#5eb3c0 13.5% 16%,transparent 16.5%),
- radial-gradient(ellipse at 70% 57%,#b4d98d 0 20%,transparent 20.5%),
- radial-gradient(ellipse at 25% 25%,#8fc77c 0 17%,transparent 17.5%),
- radial-gradient(ellipse at 48% 75%,#8dc77e 0 20%,transparent 20.5%),
- linear-gradient(135deg,#9fd18b,#b6dc91 48%,#91c77e)}
+#world{position:absolute;width:1200px;height:900px;left:0;top:0;transform-origin:0 0;background:#a6ce83 url('./island-art.png') center center/100% 100% no-repeat;overflow:hidden}
+/* Final art pass: the illustrated island replaces the former CSS scenery. */
+#world .path,#world .tree,#world .flower{display:none}
+#world .object{opacity:0;pointer-events:none}
+#player,#jack{filter:drop-shadow(0 3px 3px #263b2866)}
 .path{position:absolute;background:#d9c99d;border:5px solid #c5b185;border-radius:50%;opacity:.9}
 #path1{width:780px;height:130px;left:210px;top:420px;transform:rotate(-18deg)}
 #path2{width:140px;height:390px;left:590px;top:310px;transform:rotate(25deg)}
@@ -265,10 +264,10 @@ html,body,#game{width:100%;height:100%;height:100dvh;overscroll-behavior:none}
   <div class="flower" style="left:360px;top:500px">🌼</div><div class="flower" style="left:405px;top:525px">🌱</div>
   <div class="flower" style="left:465px;top:485px">🌷</div><div class="flower" style="left:515px;top:530px">🌼</div>
   <div class="flower" style="left:565px;top:485px">🌿</div>
-  <div class="object" id="garden" style="left:440px;top:420px">🪴<small>Little Garden</small></div>
-  <div class="object" id="river" style="left:810px;top:515px">🪨<small>Riverside</small></div>
-  <div class="object" id="bench" style="left:620px;top:650px">🪑<small>Quiet Bench</small></div>
-  <div class="object" id="butterfly" style="left:290px;top:340px">🦋<small>Butterfly</small></div>
+  <div class="object hotspot" id="garden" style="left:440px;top:420px">🪴<small>Little Garden</small></div>
+  <div class="object hotspot" id="river" style="left:810px;top:515px">🪨<small>Riverside</small></div>
+  <div class="object hotspot" id="bench" style="left:620px;top:650px">🪑<small>Quiet Bench</small></div>
+  <div class="object hotspot" id="butterfly" style="left:290px;top:340px">🦋<small>Butterfly</small></div>
   <div id="player"><div class="head"><div class="hair"></div></div><div class="body"></div><div class="legs"></div><div class="shadow"></div></div>
   <div id="jack"><span class="tag">JACK</span><div class="jhead"><i></i></div><div class="jbody"></div><div class="jlegs"></div><div class="jshadow"></div></div>
  </div>
