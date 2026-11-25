@@ -1,4 +1,4 @@
-const CACHE_NAME = 'dr-kat-little-world-final-art1';
+const CACHE_NAME = 'dr-kat-little-world-mobile-fix';
 const APP_SHELL = ['./', './index.html', './manifest.webmanifest', './icon.svg', './island-art.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
